@@ -414,7 +414,7 @@ def render_layout() -> str:
     left, right = st.columns([3, 2], gap='large')
 
     with left:
-        raw_event = components.html(build_board_html(), height=760, scrolling=False, key='interactive_board')
+        raw_event = components.html(build_board_html(), height=760, scrolling=False)
         st.markdown('### Captured pieces')
         col1, col2 = st.columns(2)
         with col1:
