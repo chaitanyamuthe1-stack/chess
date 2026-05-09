@@ -1,4 +1,4 @@
-"""RL Chess Engine Streamlit App - AI3046"""
+"""RL Chess Engine Streamlit App - AI3047"""
 
 import streamlit as st
 from datetime import datetime
@@ -8,7 +8,7 @@ from chess_engine import (
 )
 
 st.set_page_config(
-    page_title="RL Chess Engine — AI3046",
+    page_title="RL Chess Engine — AI3047",
     page_icon="♔",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -72,7 +72,7 @@ if 'board' not in st.session_state:
         st.session_state.pending_promo = None
         
         add_log('sys', '═══════════════════════════════')
-        add_log('sys', '  RL CHESS ENGINE  —  AI3046')
+        add_log('sys', '  RL CHESS ENGINE  —  AI3047')
         add_log('sys', '  minimax + alpha-beta + PST')
         add_log('sys', '═══════════════════════════════')
         add_log('sys', 'new game started. you are white.')
@@ -251,7 +251,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("<h1 class='title'>♔ RL CHESS ENGINE ♔</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>minimax + alpha-beta pruning + piece-square tables | roll: AI3046</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtitle'>minimax + alpha-beta pruning + piece-square tables | roll: AI3047</div>", unsafe_allow_html=True)
 
 # Main layout
 left, right = st.columns([3, 2], gap="large")

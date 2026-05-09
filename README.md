@@ -1,4 +1,4 @@
-# RL Chess Engine — AI3046
+# RL Chess Engine — AI3047
 
 A powerful chess engine with **minimax + alpha-beta pruning + piece-square tables**, now ready for Streamlit deployment.
 
@@ -113,7 +113,7 @@ chess/
 ├── requirements.txt       # Python dependencies
 ├── .streamlit/
 │   └── config.toml       # Streamlit configuration
-├── AI3046_Chess_RL.html  # Original HTML/JS version
+├── AI3047_Chess_RL.html  # Original HTML/JS version
 └── README.md             # This file
 ```
 
@@ -137,11 +137,11 @@ chess/
 
 - **app.py**: Streamlit UI with game state management
 - **chess_engine.py**: Core chess logic (move generation, evaluation, minimax)
-- **AI3046_Chess_RL.html**: Original single-file HTML implementation
+- **AI3047_Chess_RL.html**: Original single-file HTML implementation
 
 ## Original Version
 
-The original HTML version (`AI3046_Chess_RL.html`) is a standalone game that runs entirely in the browser with no server required. You can open it directly in any web browser.
+The original HTML version (`AI3047_Chess_RL.html`) is a standalone game that runs entirely in the browser with no server required. You can open it directly in any web browser.
 
 ## Configuration
 
@@ -185,7 +185,7 @@ Open source - feel free to modify and distribute!
 
 ## Author
 
-AI3046 Chess Engine by GitHub Copilot
+AI3047 Chess Engine by GitHub Copilot
 
 ---
 
