@@ -90,188 +90,211 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen w-full overflow-hidden ${darkMode ? 'bg-gaming-dark' : 'bg-gray-50'}`}>
-      {/* Animated Background */}
-      <ParticleBackground />
-
-      {/* Header Navigation */}
-      <motion.header
-        className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-black/30 border-b border-neon-cyan/20"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+    <AnimatePresence>
+      <motion.div
+        key="page"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.7 }}
+        className={`min-h-screen w-full overflow-x-hidden ${darkMode ? 'bg-gaming-dark' : 'bg-gray-50'}`}
       >
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <NeonText className="text-2xl font-bold">⚔️ CHESS ARENA</NeonText>
+        {/* Animated Background */}
+        <ParticleBackground />
 
-          {/* Right Controls */}
-          <div className="flex items-center gap-3">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleToggleSound}
-              className="p-2 rounded-lg bg-glass-light hover:bg-neon-cyan/20 transition-colors"
-              title={soundEnabled ? 'Mute' : 'Unmute'}
-            >
-              {soundEnabled ? (
-                <Volume2 className="w-5 h-5 text-neon-cyan" />
-              ) : (
-                <VolumeX className="w-5 h-5 text-neon-pink" />
-              )}
-            </motion.button>
+        {/* Header Navigation */}
+        <motion.header
+          className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-black/30 border-b border-neon-cyan/20"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <NeonText className="text-2xl font-bold">⚔️ CHESS ARENA</NeonText>
 
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleToggleFullscreen}
-              className="p-2 rounded-lg bg-glass-light hover:bg-neon-purple/20 transition-colors"
-              title="Fullscreen"
-            >
-              <Maximize2 className="w-5 h-5 text-neon-purple" />
-            </motion.button>
+            {/* Right Controls */}
+            <div className="flex items-center gap-3">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleToggleSound}
+                className="p-2 rounded-lg bg-glass-light hover:bg-neon-cyan/20 transition-colors focus:outline-none focus:ring-2 focus:ring-neon-cyan"
+                title={soundEnabled ? 'Mute' : 'Unmute'}
+                aria-label={soundEnabled ? 'Mute' : 'Unmute'}
+              >
+                {soundEnabled ? (
+                  <Volume2 className="w-5 h-5 text-neon-cyan" />
+                ) : (
+                  <VolumeX className="w-5 h-5 text-neon-pink" />
+                )}
+              </motion.button>
 
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowSettings(true)}
-              className="p-2 rounded-lg bg-glass-light hover:bg-neon-pink/20 transition-colors"
-              title="Settings"
-            >
-              <Settings className="w-5 h-5 text-neon-pink" />
-            </motion.button>
-          </div>
-        </div>
-      </motion.header>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleToggleFullscreen}
+                className="p-2 rounded-lg bg-glass-light hover:bg-neon-purple/20 transition-colors focus:outline-none focus:ring-2 focus:ring-neon-purple"
+                title="Fullscreen"
+                aria-label="Fullscreen"
+              >
+                <Maximize2 className="w-5 h-5 text-neon-purple" />
+              </motion.button>
 
-      {/* Main Game Container */}
-      <main className="pt-20 pb-6 px-4 relative z-10">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Sidebar - Stats */}
-          <motion.div
-            className="lg:col-span-1"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <ScoreDisplay stats={gameStats} />
-          </motion.div>
-
-          {/* Center - Game Board */}
-          <motion.div
-            className="lg:col-span-1"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <GameBoard onScoreUpdate={updateScore} />
-          </motion.div>
-
-          {/* Right Sidebar - Quick Actions */}
-          <motion.div
-            className="lg:col-span-1 space-y-4"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <GlassCard className="p-6">
-              <h3 className="text-lg font-bold text-neon-cyan mb-4">Quick Controls</h3>
-              <div className="space-y-3">
-                <GamingButton
-                  variant="primary"
-                  onClick={() => setShowPause(true)}
-                  className="w-full"
-                >
-                  Pause Game
-                </GamingButton>
-                <GamingButton
-                  variant="secondary"
-                  onClick={() => setShowVictory(true)}
-                  className="w-full"
-                >
-                  New Game
-                </GamingButton>
-                <GamingButton
-                  variant="accent"
-                  onClick={() => setShowSettings(true)}
-                  className="w-full"
-                >
-                  Settings
-                </GamingButton>
-              </div>
-            </GlassCard>
-
-            {/* Achievement Panel */}
-            <GlassCard className="p-6">
-              <h3 className="text-lg font-bold text-neon-green mb-4">🏆 Achievements</h3>
-              <div className="space-y-2 text-sm">
-                <motion.p
-                  className="text-gray-300 flex items-center gap-2"
-                  whileHover={{ x: 5 }}
-                >
-                  ✓ First Move
-                </motion.p>
-                <motion.p
-                  className="text-gray-300 flex items-center gap-2"
-                  whileHover={{ x: 5 }}
-                >
-                  ✓ Checkmate Master
-                </motion.p>
-                <motion.p
-                  className="text-gray-300 flex items-center gap-2"
-                  whileHover={{ x: 5 }}
-                >
-                  ✓ Speed Demon
-                </motion.p>
-              </div>
-            </GlassCard>
-          </motion.div>
-        </div>
-      </main>
-
-      {/* Modals */}
-      <AnimatePresence>
-        {showSettings && (
-          <SettingsPanel
-            darkMode={darkMode}
-            soundEnabled={soundEnabled}
-            onDarkModeChange={setDarkMode}
-            onSoundChange={setSoundEnabled}
-            onClose={() => setShowSettings(false)}
-          />
-        )}
-
-        {showPause && (
-          <GamingModal
-            title="GAME PAUSED"
-            onClose={() => setShowPause(false)}
-            actions={[
-              { label: 'Resume', onClick: () => setShowPause(false), variant: 'primary' },
-              { label: 'Settings', onClick: () => { setShowPause(false); setShowSettings(true); }, variant: 'secondary' },
-              { label: 'Main Menu', onClick: () => setShowPause(false), variant: 'accent' },
-            ]}
-          >
-            <p className="text-center text-gray-300">Your game is paused. Take your time.</p>
-          </GamingModal>
-        )}
-
-        {showVictory && (
-          <GamingModal
-            title="VICTORY! 🎉"
-            onClose={() => setShowVictory(false)}
-            actions={[
-              { label: 'Play Again', onClick: () => setShowVictory(false), variant: 'primary' },
-              { label: 'Main Menu', onClick: () => setShowVictory(false), variant: 'secondary' },
-            ]}
-          >
-            <div className="text-center space-y-3">
-              <p className="text-2xl font-bold text-neon-cyan">{gameStats.score} Points</p>
-              <p className="text-gray-300">Moves: {gameStats.moves}</p>
-              <p className="text-gray-300">Accuracy: {gameStats.accuracy}%</p>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowSettings(true)}
+                className="p-2 rounded-lg bg-glass-light hover:bg-neon-pink/20 transition-colors focus:outline-none focus:ring-2 focus:ring-neon-pink"
+                title="Settings"
+                aria-label="Settings"
+              >
+                <Settings className="w-5 h-5 text-neon-pink" />
+              </motion.button>
             </div>
-          </GamingModal>
-        )}
-      </AnimatePresence>
-    </div>
+          </div>
+        </motion.header>
+
+        {/* Main Game Container */}
+        <main className="pt-20 pb-6 px-2 sm:px-4 relative z-10">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Left Sidebar - Stats */}
+            <motion.div
+              className="lg:col-span-1"
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <ScoreDisplay stats={gameStats} />
+            </motion.div>
+
+            {/* Center - Game Board */}
+            <motion.div
+              className="lg:col-span-1"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <GameBoard onScoreUpdate={updateScore} />
+            </motion.div>
+
+            {/* Right Sidebar - Quick Actions */}
+            <motion.div
+              className="lg:col-span-1 space-y-4"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <GlassCard className="p-6">
+                <h3 className="text-lg font-bold text-neon-cyan mb-4">Quick Controls</h3>
+                <div className="space-y-3">
+                  <GamingButton
+                    variant="primary"
+                    onClick={() => setShowPause(true)}
+                    className="w-full"
+                  >
+                    Pause Game
+                  </GamingButton>
+                  <GamingButton
+                    variant="secondary"
+                    onClick={() => setShowVictory(true)}
+                    className="w-full"
+                  >
+                    New Game
+                  </GamingButton>
+                  <GamingButton
+                    variant="accent"
+                    onClick={() => setShowSettings(true)}
+                    className="w-full"
+                  >
+                    Settings
+                  </GamingButton>
+                </div>
+              </GlassCard>
+
+              {/* Achievement Panel */}
+              <GlassCard className="p-6">
+                <h3 className="text-lg font-bold text-neon-green mb-4 flex items-center gap-2">
+                  <span role="img" aria-label="Achievements">🏆</span> Achievements
+                </h3>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <motion.div
+                      className="flex items-center gap-2 text-gray-300"
+                      whileHover={{ x: 5, scale: 1.05 }}
+                    >
+                      <span className="inline-block w-4 h-4 bg-neon-green rounded-full mr-1" />
+                      First Move
+                    </motion.div>
+                  </li>
+                  <li>
+                    <motion.div
+                      className="flex items-center gap-2 text-gray-300"
+                      whileHover={{ x: 5, scale: 1.05 }}
+                    >
+                      <span className="inline-block w-4 h-4 bg-neon-cyan rounded-full mr-1" />
+                      Checkmate Master
+                    </motion.div>
+                  </li>
+                  <li>
+                    <motion.div
+                      className="flex items-center gap-2 text-gray-300"
+                      whileHover={{ x: 5, scale: 1.05 }}
+                    >
+                      <span className="inline-block w-4 h-4 bg-neon-pink rounded-full mr-1" />
+                      Speed Demon
+                    </motion.div>
+                  </li>
+                </ul>
+              </GlassCard>
+            </motion.div>
+          </div>
+        </main>
+
+        {/* Modals */}
+        <AnimatePresence>
+          {showSettings && (
+            <SettingsPanel
+              darkMode={darkMode}
+              soundEnabled={soundEnabled}
+              onDarkModeChange={setDarkMode}
+              onSoundChange={setSoundEnabled}
+              onClose={() => setShowSettings(false)}
+            />
+          )}
+
+          {showPause && (
+            <GamingModal
+              title="GAME PAUSED"
+              onClose={() => setShowPause(false)}
+              actions={[
+                { label: 'Resume', onClick: () => setShowPause(false), variant: 'primary' },
+                { label: 'Settings', onClick: () => { setShowPause(false); setShowSettings(true); }, variant: 'secondary' },
+                { label: 'Main Menu', onClick: () => setShowPause(false), variant: 'accent' },
+              ]}
+            >
+              <p className="text-center text-gray-300">Your game is paused. Take your time.</p>
+            </GamingModal>
+          )}
+
+          {showVictory && (
+            <GamingModal
+              title="VICTORY! 🎉"
+              onClose={() => setShowVictory(false)}
+              actions={[
+                { label: 'Play Again', onClick: () => setShowVictory(false), variant: 'primary' },
+                { label: 'Main Menu', onClick: () => setShowVictory(false), variant: 'secondary' },
+              ]}
+            >
+              <div className="text-center space-y-3">
+                <p className="text-2xl font-bold text-neon-cyan">{gameStats.score} Points</p>
+                <p className="text-gray-300">Moves: {gameStats.moves}</p>
+                <p className="text-gray-300">Accuracy: {gameStats.accuracy}%</p>
+              </div>
+            </GamingModal>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
