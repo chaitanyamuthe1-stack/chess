@@ -114,6 +114,7 @@ const App: React.FC = () => {
 
             {/* Right Controls */}
             <div className="flex items-center gap-3">
+              {/* Sound Toggle */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -129,6 +130,32 @@ const App: React.FC = () => {
                 )}
               </motion.button>
 
+              {/* Theme Toggle */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setDarkMode((prev) => {
+                    const newMode = !prev;
+                    localStorage.setItem('gamePreferences', JSON.stringify({
+                      soundEnabled,
+                      darkMode: newMode,
+                    }));
+                    return newMode;
+                  });
+                }}
+                className="p-2 rounded-lg bg-glass-light hover:bg-yellow-400/20 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {darkMode ? (
+                  <span className="w-5 h-5 text-yellow-300" role="img" aria-label="Light Mode">🌞</span>
+                ) : (
+                  <span className="w-5 h-5 text-gray-900" role="img" aria-label="Dark Mode">🌙</span>
+                )}
+              </motion.button>
+
+              {/* Fullscreen Toggle */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -140,6 +167,7 @@ const App: React.FC = () => {
                 <Maximize2 className="w-5 h-5 text-neon-purple" />
               </motion.button>
 
+              {/* Settings */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
