@@ -36,8 +36,12 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showPause, setShowPause] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
+  const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
+  const [boardResetKey, setBoardResetKey] = useState(0);
+  const [victoryMessage, setVictoryMessage] = useState('');
   const [darkMode, setDarkMode] = useState(true);
-  const [fullscreen, setFullscreen] = useState(false);
+  const [, setFullscreen] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     // Load saved preferences
@@ -87,6 +91,31 @@ const App: React.FC = () => {
       level: Math.floor((prev.xp + (points * (prev.combo + 1))) / prev.nextLevelXp) + 1,
     }));
     playSound('score');
+  };
+
+  const resetGame = () => {
+    setBoardResetKey((k) => k + 1);
+    setIsPaused(false);
+    setGameStats({
+      score: 0,
+      combo: 0,
+      level: 1,
+      xp: 0,
+      nextLevelXp: 100,
+      moves: 0,
+      accuracy: 100,
+    });
+    playSound('reset');
+  };
+
+  const handleGameEnd = (result: 'checkmate' | 'stalemate', winner: 'w' | 'b' | null) => {
+    if (result === 'checkmate' && winner) {
+      setVictoryMessage(winner === 'w' ? 'White wins by checkmate!' : 'Black wins by checkmate!');
+    } else {
+      setVictoryMessage('Draw — stalemate');
+    }
+    setShowVictory(true);
+    playSound('victory');
   };
 
   return (
@@ -202,7 +231,14 @@ const App: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <GameBoard onScoreUpdate={updateScore} />
+              <div className={isPaused ? 'pointer-events-none opacity-60' : ''}>
+                <GameBoard
+                  resetKey={boardResetKey}
+                  darkMode={darkMode}
+                  onScoreUpdate={updateScore}
+                  onGameEnd={handleGameEnd}
+                />
+              </div>
             </motion.div>
 
             {/* Right Sidebar - Quick Actions */}
@@ -217,14 +253,17 @@ const App: React.FC = () => {
                 <div className="space-y-3">
                   <GamingButton
                     variant="primary"
-                    onClick={() => setShowPause(true)}
+                    onClick={() => {
+                      setIsPaused(true);
+                      setShowPause(true);
+                    }}
                     className="w-full"
                   >
                     Pause Game
                   </GamingButton>
                   <GamingButton
                     variant="secondary"
-                    onClick={() => setShowVictory(true)}
+                    onClick={() => setShowNewGameConfirm(true)}
                     className="w-full"
                   >
                     New Game
@@ -293,30 +332,93 @@ const App: React.FC = () => {
           {showPause && (
             <GamingModal
               title="GAME PAUSED"
-              onClose={() => setShowPause(false)}
+              onClose={() => {
+                setShowPause(false);
+                setIsPaused(false);
+              }}
+              closeOnAction={false}
               actions={[
-                { label: 'Resume', onClick: () => setShowPause(false), variant: 'primary' },
-                { label: 'Settings', onClick: () => { setShowPause(false); setShowSettings(true); }, variant: 'secondary' },
-                { label: 'Main Menu', onClick: () => setShowPause(false), variant: 'accent' },
+                {
+                  label: 'Resume',
+                  onClick: () => {
+                    setShowPause(false);
+                    setIsPaused(false);
+                  },
+                  variant: 'primary',
+                },
+                {
+                  label: 'Settings',
+                  onClick: () => {
+                    setShowPause(false);
+                    setShowSettings(true);
+                  },
+                  variant: 'secondary',
+                },
+                {
+                  label: 'New Game',
+                  onClick: () => {
+                    setShowPause(false);
+                    setIsPaused(false);
+                    setShowNewGameConfirm(true);
+                  },
+                  variant: 'accent',
+                },
               ]}
             >
               <p className="text-center text-gray-300">Your game is paused. Take your time.</p>
             </GamingModal>
           )}
 
+          {showNewGameConfirm && (
+            <GamingModal
+              title="NEW GAME?"
+              onClose={() => setShowNewGameConfirm(false)}
+              actions={[
+                {
+                  label: 'Start Over',
+                  onClick: () => {
+                    resetGame();
+                    setShowNewGameConfirm(false);
+                  },
+                  variant: 'primary',
+                },
+                {
+                  label: 'Cancel',
+                  onClick: () => setShowNewGameConfirm(false),
+                  variant: 'secondary',
+                },
+              ]}
+            >
+              <p className="text-center text-gray-300">
+                Reset the board and clear your current score?
+              </p>
+            </GamingModal>
+          )}
+
           {showVictory && (
             <GamingModal
-              title="VICTORY! 🎉"
+              title="GAME OVER"
               onClose={() => setShowVictory(false)}
               actions={[
-                { label: 'Play Again', onClick: () => setShowVictory(false), variant: 'primary' },
-                { label: 'Main Menu', onClick: () => setShowVictory(false), variant: 'secondary' },
+                {
+                  label: 'Play Again',
+                  onClick: () => {
+                    resetGame();
+                    setShowVictory(false);
+                  },
+                  variant: 'primary',
+                },
+                {
+                  label: 'Close',
+                  onClick: () => setShowVictory(false),
+                  variant: 'secondary',
+                },
               ]}
             >
               <div className="text-center space-y-3">
-                <p className="text-2xl font-bold text-neon-cyan">{gameStats.score} Points</p>
+                <p className="text-xl font-bold text-neon-cyan">{victoryMessage}</p>
+                <p className="text-2xl font-bold text-neon-purple">{gameStats.score} Points</p>
                 <p className="text-gray-300">Moves: {gameStats.moves}</p>
-                <p className="text-gray-300">Accuracy: {gameStats.accuracy}%</p>
               </div>
             </GamingModal>
           )}

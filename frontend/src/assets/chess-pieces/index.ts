@@ -1,15 +1,31 @@
-// Chess piece SVG imports
-export const pieceSvgs = {
-    wK: require('./chess-pieces/wK.svg'),
-    wQ: require('./chess-pieces/wQ.svg'),
-    wR: require('./chess-pieces/wR.svg'),
-    wB: require('./chess-pieces/wB.svg'),
-    wN: require('./chess-pieces/wN.svg'),
-    wP: require('./chess-pieces/wP.svg'),
-    bK: require('./chess-pieces/bK.svg'),
-    bQ: require('./chess-pieces/bQ.svg'),
-    bR: require('./chess-pieces/bR.svg'),
-    bB: require('./chess-pieces/bB.svg'),
-    bN: require('./chess-pieces/bN.svg'),
-    bP: require('./chess-pieces/bP.svg'),
+import wK from './wK.svg';
+import wQ from './wQ.svg';
+import wR from './wR.svg';
+import wB from './wB.svg';
+import wN from './wN.svg';
+import wP from './wP.svg';
+import bK from './bK.svg';
+import bQ from './bQ.svg';
+import bR from './bR.svg';
+import bB from './bB.svg';
+import bN from './bN.svg';
+import bP from './bP.svg';
+
+export type PieceCode =
+  | 'wK' | 'wQ' | 'wR' | 'wB' | 'wN' | 'wP'
+  | 'bK' | 'bQ' | 'bR' | 'bB' | 'bN' | 'bP';
+
+export const pieceSvgs: Record<PieceCode, string> = {
+  wK,
+  wQ,
+  wR,
+  wB,
+  wN,
+  wP,
+  bK,
+  bQ,
+  bR,
+  bB,
+  bN,
+  bP,
 };

@@ -24,8 +24,6 @@ interface ScoreDisplayProps {
 }
 
 const ScoreDisplay: React.FC<ScoreDisplayProps> = ({ stats }) => {
-    const xpProgress = (stats.xp / stats.nextLevelXp) * 100;
-
     const statItems = [
         {
             icon: Trophy,

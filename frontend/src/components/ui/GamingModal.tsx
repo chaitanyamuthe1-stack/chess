@@ -18,6 +18,7 @@ interface GamingModalProps {
     children: React.ReactNode;
     onClose: () => void;
     actions?: ModalAction[];
+    closeOnAction?: boolean;
 }
 
 const GamingModal: React.FC<GamingModalProps> = ({
@@ -25,6 +26,7 @@ const GamingModal: React.FC<GamingModalProps> = ({
     children,
     onClose,
     actions = [],
+    closeOnAction = true,
 }) => {
     return (
         <AnimatePresence>
@@ -80,20 +82,26 @@ const GamingModal: React.FC<GamingModalProps> = ({
 
                             {/* Actions */}
                             {actions.length > 0 && (
-                                <div className="grid grid-cols-2 gap-3">
+                                <motion.div
+                                    className={`grid gap-3 ${
+                                        actions.length >= 3
+                                            ? 'grid-cols-1 sm:grid-cols-3'
+                                            : 'grid-cols-2'
+                                    }`}
+                                >
                                     {actions.map((action, idx) => (
                                         <GamingButton
                                             key={idx}
                                             variant={action.variant || 'primary'}
                                             onClick={() => {
                                                 action.onClick();
-                                                onClose();
+                                                if (closeOnAction) onClose();
                                             }}
                                         >
                                             {action.label}
                                         </GamingButton>
                                     ))}
-                                </div>
+                                </motion.div>
                             )}
                         </div>
                     </div>
