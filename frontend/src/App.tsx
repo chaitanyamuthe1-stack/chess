@@ -219,24 +219,51 @@ const App: React.FC = () => {
 
         {/* Main Game Container */}
         <main className="pt-20 pb-6 px-2 sm:px-4 relative z-10">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Left Sidebar - Stats */}
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            {/* Left Sidebar - Player Panel & Stats */}
             <motion.div
-              className="lg:col-span-1"
+              className="md:col-span-1 space-y-6"
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
+              {/* Player Panel (White) */}
+              <GlassCard className="p-4 flex flex-col items-center gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/80 to-neon-cyan/30 border-2 border-neon-cyan flex items-center justify-center text-2xl font-bold text-gray-900 shadow-lg">
+                    ♔
+                  </div>
+                  <div>
+                    <div className="font-bold text-neon-cyan text-lg">You</div>
+                    <div className="text-xs text-gray-400">White</div>
+                  </div>
+                </div>
+                {/* Timer Placeholder */}
+                <div className="mt-2 text-sm text-neon-cyan font-mono">00:00</div>
+                {/* Captured Pieces Placeholder */}
+                <div className="flex gap-1 mt-2">
+                  {/* Example: <img src={pieceSvg} alt="" className="w-5 h-5" /> */}
+                </div>
+              </GlassCard>
               <ScoreDisplay stats={gameStats} />
             </motion.div>
 
-            {/* Center - Game Board */}
+            {/* Center - Game Board & Match Status */}
             <motion.div
-              className="lg:col-span-1"
+              className="md:col-span-1 flex flex-col items-center gap-4"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
             >
+              {/* Match Status */}
+              <GlassCard className="mb-2 px-4 py-2 flex items-center justify-center gap-3">
+                <span className="text-xs font-semibold text-neon-cyan uppercase tracking-wider">Current Turn:</span>
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-bold text-sm">
+                  {/* This could be dynamic: White/Black */}
+                  White
+                </span>
+                <span className="text-xs text-gray-400 ml-2">(vs {vsAi ? 'AI' : 'Player'})</span>
+              </GlassCard>
               <div className={isPaused ? 'pointer-events-none opacity-60' : ''}>
                 <GameBoard
                   resetKey={boardResetKey}
@@ -250,13 +277,31 @@ const App: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Right Sidebar - Quick Actions */}
+            {/* Right Sidebar - Opponent Panel & Controls */}
             <motion.div
-              className="lg:col-span-1 space-y-4"
+              className="md:col-span-1 space-y-6"
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
+              {/* Player Panel (Black/AI) */}
+              <GlassCard className="p-4 flex flex-col items-center gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-black/80 to-neon-purple/30 border-2 border-neon-purple flex items-center justify-center text-2xl font-bold text-white shadow-lg">
+                    ♚
+                  </div>
+                  <div>
+                    <div className="font-bold text-neon-purple text-lg">{vsAi ? 'AI' : 'Opponent'}</div>
+                    <div className="text-xs text-gray-400">Black</div>
+                  </div>
+                </div>
+                {/* Timer Placeholder */}
+                <div className="mt-2 text-sm text-neon-purple font-mono">00:00</div>
+                {/* Captured Pieces Placeholder */}
+                <div className="flex gap-1 mt-2">
+                  {/* Example: <img src={pieceSvg} alt="" className="w-5 h-5" /> */}
+                </div>
+              </GlassCard>
               <GlassCard className="p-6">
                 <h3 className="text-lg font-bold text-neon-cyan mb-4">Quick Controls</h3>
                 <div className="space-y-3">
@@ -286,7 +331,6 @@ const App: React.FC = () => {
                   </GamingButton>
                 </div>
               </GlassCard>
-
               {/* Achievement Panel */}
               <GlassCard className="p-6">
                 <h3 className="text-lg font-bold text-neon-green mb-4 flex items-center gap-2">
