@@ -1,25 +1,28 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { RotateCcw, Bot } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
+import GamingButton from '../ui/GamingButton';
 import './GameBoard.realistic.css';
 import { pieceSvgs, type PieceCode } from '../../assets/chess-pieces';
 import {
   FILES,
-  captureValue,
   coordsToSquare,
-  createInitialGameState,
-  getGameStatus,
   getLegalMoves,
-  applyMove,
   squareToCoords,
   type Color,
-  type GameState,
 } from '../../lib/chessEngine';
+import { useChessGame } from '../../hooks/useChessGame';
+import PromotionModal from './PromotionModal';
+import MoveHistory from './MoveHistory';
 
 interface GameBoardProps {
   onScoreUpdate?: (points: number, isCombo?: boolean) => void;
   resetKey?: number;
   darkMode?: boolean;
+  paused?: boolean;
+  vsAi?: boolean;
+  aiDepth?: number;
   onGameEnd?: (result: 'checkmate' | 'stalemate', winner: Color | null) => void;
 }
 
@@ -29,42 +32,53 @@ const GameBoard: React.FC<GameBoardProps> = ({
   onScoreUpdate,
   resetKey = 0,
   darkMode = true,
+  paused = false,
+  vsAi = false,
+  aiDepth = 2,
   onGameEnd,
 }) => {
-  const [game, setGame] = useState<GameState>(createInitialGameState);
+  const {
+    game,
+    status,
+    isGameOver,
+    notations,
+    pendingPromotion,
+    aiThinking,
+    canUndo,
+    reset,
+    undo,
+    applyMoveWithPromo,
+    completePromotion,
+    cancelPromotion,
+  } = useChessGame({
+    vsAi,
+    aiDepth,
+    humanColor: 'w',
+    paused,
+    onScoreUpdate,
+    onGameEnd,
+  });
+
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [legalTargets, setLegalTargets] = useState<Set<string>>(new Set());
   const [animatedSquare, setAnimatedSquare] = useState<string | null>(null);
-  const gameEndReported = useRef(false);
-
-  const resetBoard = useCallback(() => {
-    gameEndReported.current = false;
-    setGame(createInitialGameState());
-    setSelectedSquare(null);
-    setLegalTargets(new Set());
-    setAnimatedSquare(null);
-  }, []);
 
   useEffect(() => {
-    resetBoard();
-  }, [resetKey, resetBoard]);
-
-  const status = useMemo(
-    () => getGameStatus(game),
-    [game.board, game.turn, game.castling, game.enPassant]
-  );
+    reset();
+    setSelectedSquare(null);
+    setLegalTargets(new Set());
+  }, [resetKey, reset]);
 
   const kingInCheckSquare = useMemo(() => {
     if (status !== 'check' && status !== 'checkmate') return null;
-    const [row, col] = (() => {
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          if (game.board[r][c] === `${game.turn}K`) return [r, c];
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        if (game.board[r][c] === `${game.turn}K`) {
+          return coordsToSquare(r, c);
         }
       }
-      return [-1, -1];
-    })();
-    return row >= 0 ? coordsToSquare(row, col) : null;
+    }
+    return null;
   }, [game.board, game.turn, status]);
 
   const lastMoveSquares = useMemo(() => {
@@ -73,19 +87,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     return new Set([coordsToSquare(fr, fc), coordsToSquare(tr, tc)]);
   }, [game.lastMove]);
 
-  useEffect(() => {
-    if (
-      (status === 'checkmate' || status === 'stalemate') &&
-      !gameEndReported.current
-    ) {
-      gameEndReported.current = true;
-      const winner =
-        status === 'checkmate' ? (game.turn === 'w' ? 'b' : 'w') : null;
-      onGameEnd?.(status, winner);
-    }
-  }, [status, game.turn, onGameEnd]);
-
   const statusLabel = useMemo(() => {
+    if (aiThinking) return 'AI is thinking…';
     switch (status) {
       case 'check':
         return game.turn === 'w' ? 'White in check' : 'Black in check';
@@ -94,12 +97,20 @@ const GameBoard: React.FC<GameBoardProps> = ({
       case 'stalemate':
         return 'Draw — stalemate';
       default:
+        if (vsAi && game.turn === 'b') return "AI's turn (Black)";
         return game.turn === 'w' ? "White's turn" : "Black's turn";
     }
-  }, [status, game.turn]);
+  }, [status, game.turn, aiThinking, vsAi]);
+
+  const canInteract =
+    !isGameOver &&
+    !paused &&
+    !aiThinking &&
+    !pendingPromotion &&
+    (!vsAi || game.turn === 'w');
 
   const handleSquareClick = (square: string) => {
-    if (status === 'checkmate' || status === 'stalemate') return;
+    if (!canInteract) return;
 
     const [row, col] = squareToCoords(square);
     const piece = game.board[row][col];
@@ -120,34 +131,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
       );
       if (!move) return;
 
-      const { board, captured, castling, enPassant } = applyMove(
-        game.board,
-        move.fr,
-        move.fc,
-        move.tr,
-        move.tc,
-        move.promo ?? null,
-        game.castling,
-        game.enPassant
-      );
-
-      if (captured) {
-        onScoreUpdate?.(captureValue(captured), true);
-      } else {
-        onScoreUpdate?.(5, false);
-      }
-
-      const nextTurn: Color = game.turn === 'w' ? 'b' : 'w';
       setAnimatedSquare(square);
       setTimeout(() => setAnimatedSquare(null), 320);
-
-      setGame({
-        board,
-        turn: nextTurn,
-        castling,
-        enPassant,
-        lastMove: move,
-      });
+      applyMoveWithPromo(move);
       setSelectedSquare(null);
       setLegalTargets(new Set());
       return;
@@ -176,35 +162,38 @@ const GameBoard: React.FC<GameBoardProps> = ({
         transition={{ delay: 0.1 }}
         className="space-y-4"
       >
-        <motion.h3
-          className={`text-lg font-bold text-center tracking-wide font-gaming ${
-            darkMode ? 'text-neon-cyan' : 'text-amber-900'
-          }`}
-          layout
-        >
-          Chess Board
-        </motion.h3>
+        <div className="flex items-center justify-between gap-2">
+          <motion.h3
+            className={`text-lg font-bold tracking-wide font-gaming ${
+              darkMode ? 'text-neon-cyan' : 'text-amber-900'
+            }`}
+          >
+            Chess Board
+          </motion.h3>
+          {vsAi && (
+            <span className="flex items-center gap-1 text-xs text-neon-purple font-semibold">
+              <Bot className="w-4 h-4" /> AI depth {aiDepth}
+            </span>
+          )}
+        </div>
 
         <motion.div
           className={`turn-indicator ${game.turn === 'w' ? 'white-turn' : 'black-turn'}`}
           layout
-          key={game.turn}
-          initial={{ opacity: 0.6 }}
-          animate={{ opacity: 1 }}
+          key={`${game.turn}-${aiThinking}`}
         >
           <span className={`turn-dot ${game.turn === 'w' ? 'white' : 'black'}`} />
           <span className={darkMode ? 'text-gray-200' : 'text-gray-800'}>{statusLabel}</span>
         </motion.div>
 
         <motion.div
-          className="chess-board-realistic mx-auto w-full max-w-[min(92vw,520px)] aspect-square p-2"
+          className={`chess-board-realistic mx-auto w-full max-w-[min(92vw,520px)] aspect-square p-2 ${
+            aiThinking ? 'board-ai-thinking' : ''
+          }`}
           role="grid"
           aria-label="Chess board"
         >
-          <motion.div
-            className="grid grid-cols-8 gap-0 h-full w-full rounded-xl overflow-hidden"
-            layout
-          >
+          <motion.div className="grid grid-cols-8 gap-0 h-full w-full rounded-xl overflow-hidden">
             {RANKS.map((rank) =>
               FILES.map((file) => {
                 const square = `${file}${rank}`;
@@ -220,6 +209,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   <motion.button
                     type="button"
                     key={square}
+                    disabled={!canInteract}
                     className={[
                       'chess-square-realistic',
                       isLight ? 'light' : 'dark',
@@ -233,11 +223,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     whileHover={{ scale: piece || isLegal ? 1.03 : 1 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleSquareClick(square)}
-                    aria-label={
-                      piece
-                        ? `${square}, ${piece[0] === 'w' ? 'white' : 'black'} ${piece[1]}`
-                        : square
-                    }
                   >
                     {file === 'a' && (
                       <span className="square-rank-label">{rank}</span>
@@ -245,7 +230,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     {rank === 1 && (
                       <span className="square-file-label">{file.toUpperCase()}</span>
                     )}
-
                     {piece && (
                       <img
                         src={pieceSvgs[piece as PieceCode]}
@@ -261,32 +245,46 @@ const GameBoard: React.FC<GameBoardProps> = ({
               })
             )}
           </motion.div>
-          <motion.div
-            className="board-shine"
-            aria-hidden
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          />
+          <motion.div className="board-shine" aria-hidden />
         </motion.div>
 
-        <div
+        <motion.div className="flex gap-2">
+          <GamingButton
+            variant="secondary"
+            size="sm"
+            onClick={undo}
+            disabled={!canUndo}
+            className="flex-1"
+          >
+            <RotateCcw className="w-4 h-4 inline mr-1" />
+            Undo
+          </GamingButton>
+        </motion.div>
+
+        <MoveHistory notations={notations} darkMode={darkMode} />
+
+        <motion.div
           className={`grid grid-cols-2 gap-2 text-xs font-medium ${
             darkMode ? 'text-gray-400' : 'text-gray-600'
           }`}
         >
-          <motion.div layout>Status: {status === 'playing' ? 'In progress' : status}</motion.div>
-          <motion.div
-            key={game.lastMove ? `${game.lastMove.fr}${game.lastMove.fc}` : 'start'}
-            initial={{ opacity: 0, x: 8 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
+          <div>Status: {status === 'playing' ? 'In progress' : status}</div>
+          <div>
             Last:{' '}
             {game.lastMove
               ? `${coordsToSquare(game.lastMove.fr, game.lastMove.fc)} → ${coordsToSquare(game.lastMove.tr, game.lastMove.tc)}`
               : '—'}
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </motion.div>
+
+      {pendingPromotion && (
+        <PromotionModal
+          color={game.turn}
+          onSelect={completePromotion}
+          onClose={cancelPromotion}
+        />
+      )}
     </GlassCard>
   );
 };

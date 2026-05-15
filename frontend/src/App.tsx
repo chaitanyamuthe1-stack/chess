@@ -42,24 +42,33 @@ const App: React.FC = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [, setFullscreen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [vsAi, setVsAi] = useState(true);
+  const [aiDepth, setAiDepth] = useState(2);
+
+  const savePreferences = (patch: Record<string, unknown>) => {
+    const saved = localStorage.getItem('gamePreferences');
+    const current = saved ? JSON.parse(saved) : {};
+    localStorage.setItem(
+      'gamePreferences',
+      JSON.stringify({ ...current, ...patch })
+    );
+  };
 
   useEffect(() => {
-    // Load saved preferences
     const saved = localStorage.getItem('gamePreferences');
     if (saved) {
       const prefs = JSON.parse(saved);
       setSoundEnabled(prefs.soundEnabled ?? true);
       setDarkMode(prefs.darkMode ?? true);
+      setVsAi(prefs.vsAi ?? true);
+      setAiDepth(prefs.aiDepth ?? 2);
     }
   }, []);
 
   const handleToggleSound = () => {
     const newState = !soundEnabled;
     setSoundEnabled(newState);
-    localStorage.setItem('gamePreferences', JSON.stringify({
-      soundEnabled: newState,
-      darkMode,
-    }));
+    savePreferences({ soundEnabled: newState, darkMode, vsAi, aiDepth });
     playSound('toggle');
   };
 
@@ -166,10 +175,7 @@ const App: React.FC = () => {
                 onClick={() => {
                   setDarkMode((prev) => {
                     const newMode = !prev;
-                    localStorage.setItem('gamePreferences', JSON.stringify({
-                      soundEnabled,
-                      darkMode: newMode,
-                    }));
+                    savePreferences({ soundEnabled, darkMode: newMode, vsAi, aiDepth });
                     return newMode;
                   });
                 }}
@@ -235,6 +241,9 @@ const App: React.FC = () => {
                 <GameBoard
                   resetKey={boardResetKey}
                   darkMode={darkMode}
+                  paused={isPaused}
+                  vsAi={vsAi}
+                  aiDepth={aiDepth}
                   onScoreUpdate={updateScore}
                   onGameEnd={handleGameEnd}
                 />
@@ -323,8 +332,24 @@ const App: React.FC = () => {
             <SettingsPanel
               darkMode={darkMode}
               soundEnabled={soundEnabled}
-              onDarkModeChange={setDarkMode}
-              onSoundChange={setSoundEnabled}
+              vsAi={vsAi}
+              aiDepth={aiDepth}
+              onDarkModeChange={(v) => {
+                setDarkMode(v);
+                savePreferences({ darkMode: v, soundEnabled, vsAi, aiDepth });
+              }}
+              onSoundChange={(v) => {
+                setSoundEnabled(v);
+                savePreferences({ soundEnabled: v, darkMode, vsAi, aiDepth });
+              }}
+              onVsAiChange={(v) => {
+                setVsAi(v);
+                savePreferences({ vsAi: v, soundEnabled, darkMode, aiDepth });
+              }}
+              onAiDepthChange={(d) => {
+                setAiDepth(d);
+                savePreferences({ aiDepth: d, soundEnabled, darkMode, vsAi });
+              }}
               onClose={() => setShowSettings(false)}
             />
           )}

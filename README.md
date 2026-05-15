@@ -22,8 +22,12 @@ Open [http://localhost:5173](http://localhost:5173).
 ### Features
 
 - Playable board with legal moves, check, checkmate, and stalemate
+- **AI opponent** (minimax + alpha-beta, depth 1–3) — toggle in Settings
+- **Promotion picker** when a pawn reaches the last rank
+- **Move history** panel and **undo** (one ply at a time)
 - Move highlights, legal-move indicators, and turn display
 - Gaming UI: glassmorphism, neon theme, stats, pause, and new-game flow
+- Local two-player mode (disable AI in Settings)
 
 ### Production build
 

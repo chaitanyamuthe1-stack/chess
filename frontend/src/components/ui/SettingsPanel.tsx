@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Volume2, VolumeX, Moon, Sun } from 'lucide-react';
+import { X, Volume2, VolumeX, Moon, Sun, Bot } from 'lucide-react';
 import GlassCard from './GlassCard';
 import GamingButton from './GamingButton';
 
@@ -11,16 +11,24 @@ import GamingButton from './GamingButton';
 interface SettingsPanelProps {
     darkMode: boolean;
     soundEnabled: boolean;
+    vsAi: boolean;
+    aiDepth: number;
     onDarkModeChange: (enabled: boolean) => void;
     onSoundChange: (enabled: boolean) => void;
+    onVsAiChange: (enabled: boolean) => void;
+    onAiDepthChange: (depth: number) => void;
     onClose: () => void;
 }
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
     darkMode,
     soundEnabled,
+    vsAi,
+    aiDepth,
     onDarkModeChange,
     onSoundChange,
+    onVsAiChange,
+    onAiDepthChange,
     onClose,
 }) => {
     return (
@@ -91,6 +99,47 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         />
                                     </motion.button>
                                 </motion.div>
+
+                                <motion.div
+                                    className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
+                                    whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Bot className="w-5 h-5 text-neon-cyan" />
+                                        <span className="font-semibold">AI Opponent</span>
+                                    </div>
+                                    <motion.button
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => onVsAiChange(!vsAi)}
+                                        className={`relative w-12 h-6 rounded-full transition-colors ${vsAi ? 'bg-neon-cyan' : 'bg-gray-600'}`}
+                                    >
+                                        <motion.div
+                                            className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full"
+                                            animate={{ x: vsAi ? 24 : 0 }}
+                                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                        />
+                                    </motion.button>
+                                </motion.div>
+
+                                {vsAi && (
+                                    <motion.div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="font-semibold">AI Strength</span>
+                                            <span className="text-neon-cyan">Depth {aiDepth}</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min={1}
+                                            max={3}
+                                            value={aiDepth}
+                                            onChange={(e) => onAiDepthChange(Number(e.target.value))}
+                                            className="w-full accent-neon-cyan"
+                                        />
+                                        <p className="text-xs text-gray-400">
+                                            1 = fast · 2 = balanced · 3 = strong (slower)
+                                        </p>
+                                    </motion.div>
+                                )}
 
                                 {/* Dark Mode Toggle */}
                                 <motion.div
