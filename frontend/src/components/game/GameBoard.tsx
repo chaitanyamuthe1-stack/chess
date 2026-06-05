@@ -28,6 +28,7 @@ interface GameBoardProps {
 
 const RANKS = [8, 7, 6, 5, 4, 3, 2, 1];
 
+
 const GameBoard: React.FC<GameBoardProps> = ({
   onScoreUpdate,
   resetKey = 0,
@@ -164,9 +165,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
       >
         <div className="flex items-center justify-between gap-2">
           <motion.h3
-            className={`text-lg font-bold tracking-wide font-gaming ${
-              darkMode ? 'text-neon-cyan' : 'text-amber-900'
-            }`}
+            className={`text-lg font-bold tracking-wide font-gaming ${darkMode ? 'text-neon-cyan' : 'text-amber-900'
+              }`}
           >
             Chess Board
           </motion.h3>
@@ -187,9 +187,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
         </motion.div>
 
         <motion.div
-          className={`chess-board-realistic mx-auto w-full max-w-[min(92vw,520px)] aspect-square p-2 ${
-            aiThinking ? 'board-ai-thinking' : ''
-          }`}
+          className={`chess-board-realistic mx-auto w-full max-w-[min(92vw,520px)] aspect-square p-2 ${aiThinking ? 'board-ai-thinking' : ''
+            }`}
           role="grid"
           aria-label="Chess board"
         >
@@ -220,9 +219,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     ]
                       .filter(Boolean)
                       .join(' ')}
-                    whileHover={{ scale: piece || isLegal ? 1.03 : 1 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: piece || isLegal ? 1.06 : 1, zIndex: 3 }}
+                    whileTap={{ scale: 0.97, zIndex: 3 }}
                     onClick={() => handleSquareClick(square)}
+                    style={{ zIndex: isSelected ? 3 : isLastMove ? 2 : 1 }}
                   >
                     {file === 'a' && (
                       <span className="square-rank-label">{rank}</span>
@@ -231,13 +231,20 @@ const GameBoard: React.FC<GameBoardProps> = ({
                       <span className="square-file-label">{file.toUpperCase()}</span>
                     )}
                     {piece && (
-                      <img
+                      <motion.img
                         src={pieceSvgs[piece as PieceCode]}
                         alt=""
-                        className={`chess-piece-realistic${
-                          animatedSquare === square ? ' animate' : ''
-                        }`}
+                        className={`chess-piece-realistic${animatedSquare === square ? ' animate' : ''
+                          }`}
                         draggable={false}
+                        layoutId={`piece-${square}-${piece}`}
+                        initial={false}
+                        animate={
+                          isSelected
+                            ? { scale: 1.13, filter: 'drop-shadow(0 0 16px #00d9ffcc) drop-shadow(0 8px 24px #00d9ff33)' }
+                            : { scale: 1, filter: 'drop-shadow(0 4px 10px rgba(0,217,255,0.10)) drop-shadow(0 2px 8px rgba(0,0,0,0.38))' }
+                        }
+                        transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                       />
                     )}
                   </motion.button>
@@ -264,9 +271,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
         <MoveHistory notations={notations} darkMode={darkMode} />
 
         <motion.div
-          className={`grid grid-cols-2 gap-2 text-xs font-medium ${
-            darkMode ? 'text-gray-400' : 'text-gray-600'
-          }`}
+          className={`grid grid-cols-2 gap-2 text-xs font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}
         >
           <div>Status: {status === 'playing' ? 'In progress' : status}</div>
           <div>

@@ -17,6 +17,18 @@
     transition: box-shadow 0.3s, border 0.3s;
 }
 
+/* Enhanced hover effects for chess squares */
+.chess-square-realistic:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+}
+
+/* Glowing border for active player's turn */
+.chess-board-realistic.active-player {
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+}
+
+/* Subtle shine effect on the board */
 .board-shine {
     position: absolute;
     inset: 0;
@@ -26,25 +38,21 @@
             rgba(255, 255, 255, 0.03) 45%,
             transparent 100%);
     border-radius: 14px;
+    animation: shine 3s infinite;
 }
 
-.chess-square-realistic {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    cursor: pointer;
-    border: none;
-    padding: 0;
-    transition: box-shadow 0.2s, filter 0.2s;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) inset;
-}
+@keyframes shine {
+    0% {
+        opacity: 0.5;
+    }
 
-.chess-square-realistic.light {
-    background-color: #f0d9b5;
-}
+    50% {
+        opacity: 1;
+    }
 
-.chess-square-realistic.dark {
-    background-color: #b58863;
+    100% {
+        opacity: 0.5;
+    }
 }
 
 /* Neon glow for selected square */

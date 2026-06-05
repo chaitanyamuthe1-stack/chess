@@ -20,7 +20,7 @@ const GlassCard: React.FC<GlassCardProps> = ({
 }) => {
     return (
         <motion.div
-            whileHover={hover ? { scale: 1.02 } : undefined}
+            whileHover={hover ? { scale: 1.02, boxShadow: '0 8px 20px rgba(0, 0, 0, 0.2)' } : undefined}
             className={`
         relative rounded-2xl backdrop-blur-xl
         bg-white/5 border border-white/10

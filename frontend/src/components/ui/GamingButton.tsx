@@ -37,7 +37,7 @@ const GamingButton: React.FC<GamingButtonProps> = ({
 
     return (
         <motion.button
-            whileHover={!disabled ? { scale: 1.05 } : undefined}
+            whileHover={!disabled ? { scale: 1.05, boxShadow: '0 4px 15px rgba(0, 217, 255, 0.5)' } : undefined}
             whileTap={!disabled ? { scale: 0.95 } : undefined}
             onClick={onClick}
             disabled={disabled}
